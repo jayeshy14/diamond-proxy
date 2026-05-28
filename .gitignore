@@ -12,3 +12,7 @@ docs/
 
 # Dotenv file
 .env
+
+# Echidna
+test/echidna/corpus/
+crytic-export/
