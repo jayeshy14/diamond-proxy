@@ -74,11 +74,8 @@ contract DiamondEchidna {
         IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](1);
         bytes4[] memory sels = new bytes4[](1);
         sels[0] = sel;
-        cuts[0] = IDiamondCut.FacetCut({
-            facetAddress: f,
-            action: IDiamondCut.FacetCutAction.Add,
-            functionSelectors: sels
-        });
+        cuts[0] =
+            IDiamondCut.FacetCut({facetAddress: f, action: IDiamondCut.FacetCutAction.Add, functionSelectors: sels});
 
         try diamond.diamondCut(cuts, address(0), "") {
             expected[sel] = f;
@@ -95,9 +92,7 @@ contract DiamondEchidna {
         bytes4[] memory sels = new bytes4[](1);
         sels[0] = sel;
         cuts[0] = IDiamondCut.FacetCut({
-            facetAddress: f,
-            action: IDiamondCut.FacetCutAction.Replace,
-            functionSelectors: sels
+            facetAddress: f, action: IDiamondCut.FacetCutAction.Replace, functionSelectors: sels
         });
 
         try diamond.diamondCut(cuts, address(0), "") {
@@ -112,9 +107,7 @@ contract DiamondEchidna {
         bytes4[] memory sels = new bytes4[](1);
         sels[0] = sel;
         cuts[0] = IDiamondCut.FacetCut({
-            facetAddress: address(0),
-            action: IDiamondCut.FacetCutAction.Remove,
-            functionSelectors: sels
+            facetAddress: address(0), action: IDiamondCut.FacetCutAction.Remove, functionSelectors: sels
         });
 
         try diamond.diamondCut(cuts, address(0), "") {
@@ -130,15 +123,14 @@ contract DiamondEchidna {
 
         IDiamondCut.FacetCut[] memory cuts = new IDiamondCut.FacetCut[](1);
         cuts[0] = IDiamondCut.FacetCut({
-            facetAddress: _facet(facetIdx),
-            action: IDiamondCut.FacetCutAction(action % 3),
-            functionSelectors: sels
+            facetAddress: _facet(facetIdx), action: IDiamondCut.FacetCutAction(action % 3), functionSelectors: sels
         });
 
         try diamond.diamondCut(cuts, address(0), "") {
-            // If we land here the immutable-selector guard was bypassed.
-            // echidna_immutable_selectors_intact will catch the state damage.
-        } catch {}
+        // If we land here the immutable-selector guard was bypassed.
+        // echidna_immutable_selectors_intact will catch the state damage.
+        }
+            catch {}
     }
 
     // ─── Invariants ───────────────────────────────────────────────────────────

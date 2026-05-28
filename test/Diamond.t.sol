@@ -9,18 +9,32 @@ import {IOwnership} from "../src/interfaces/IOwnership.sol";
 import {IERC165} from "@openzeppelin/contracts/utils/introspection/IERC165.sol";
 
 contract FacetA {
-    function a1() external pure returns (uint256) { return 0xa1; }
-    function a2() external pure returns (uint256) { return 0xa2; }
-    function a3() external pure returns (uint256) { return 0xa3; }
+    function a1() external pure returns (uint256) {
+        return 0xa1;
+    }
+
+    function a2() external pure returns (uint256) {
+        return 0xa2;
+    }
+
+    function a3() external pure returns (uint256) {
+        return 0xa3;
+    }
 }
 
 contract FacetB {
-    function a1() external pure returns (uint256) { return 0xb1; } // same selector as FacetA.a1
-    function b1() external pure returns (uint256) { return 0xbb1; }
+    function a1() external pure returns (uint256) {
+        return 0xb1; // same selector as FacetA.a1
+    }
+
+    function b1() external pure returns (uint256) {
+        return 0xbb1;
+    }
 }
 
 contract GoodInit {
     event Initialized(uint256 marker);
+
     function init(uint256 marker) external {
         emit Initialized(marker);
     }
@@ -28,9 +42,11 @@ contract GoodInit {
 
 contract BadInit {
     error InitBoom(string reason);
+
     function blow() external pure {
         revert InitBoom("nope");
     }
+
     function silent() external pure {
         revert();
     }
@@ -211,11 +227,13 @@ contract DiamondTest is Test {
     }
 
     function test_add_revertsDuplicateSelector() public {
-        IDiamondCut.FacetCut[] memory cuts1 = _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
+        IDiamondCut.FacetCut[] memory cuts1 =
+            _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
         vm.prank(OWNER);
         d.diamondCut(cuts1, address(0), "");
 
-        IDiamondCut.FacetCut[] memory cuts2 = _oneSelCut(address(fb), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
+        IDiamondCut.FacetCut[] memory cuts2 =
+            _oneSelCut(address(fb), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
         vm.expectRevert(abi.encodeWithSelector(Diamond.SelectorAlreadyExists.selector, FacetA.a1.selector));
         vm.prank(OWNER);
         d.diamondCut(cuts2, address(0), "");
@@ -344,8 +362,7 @@ contract DiamondTest is Test {
 
     function test_init_success_runsDelegatecall() public {
         GoodInit gi = new GoodInit();
-        IDiamondCut.FacetCut[] memory cuts =
-            _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
+        IDiamondCut.FacetCut[] memory cuts = _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
         bytes memory data = abi.encodeWithSelector(GoodInit.init.selector, uint256(0x42));
 
         vm.expectEmit(false, false, false, true, address(d)); // Initialized event fires in diamond's context
@@ -356,8 +373,7 @@ contract DiamondTest is Test {
     }
 
     function test_init_revertsIfInitHasNoCode() public {
-        IDiamondCut.FacetCut[] memory cuts =
-            _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
+        IDiamondCut.FacetCut[] memory cuts = _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
 
         vm.expectRevert(abi.encodeWithSelector(Diamond.InitHasNoCode.selector, ALICE));
         vm.prank(OWNER);
@@ -366,8 +382,7 @@ contract DiamondTest is Test {
 
     function test_init_bubblesCustomRevert() public {
         BadInit bi = new BadInit();
-        IDiamondCut.FacetCut[] memory cuts =
-            _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
+        IDiamondCut.FacetCut[] memory cuts = _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
         bytes memory data = abi.encodeWithSelector(BadInit.blow.selector);
 
         vm.expectRevert(abi.encodeWithSelector(BadInit.InitBoom.selector, "nope"));
@@ -377,8 +392,7 @@ contract DiamondTest is Test {
 
     function test_init_silentRevert_yieldsInitFailed() public {
         BadInit bi = new BadInit();
-        IDiamondCut.FacetCut[] memory cuts =
-            _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
+        IDiamondCut.FacetCut[] memory cuts = _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
         bytes memory data = abi.encodeWithSelector(BadInit.silent.selector);
 
         vm.expectRevert(Diamond.InitFailed.selector);
@@ -387,8 +401,7 @@ contract DiamondTest is Test {
     }
 
     function test_init_zeroAddress_skipped() public {
-        IDiamondCut.FacetCut[] memory cuts =
-            _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
+        IDiamondCut.FacetCut[] memory cuts = _oneSelCut(address(fa), IDiamondCut.FacetCutAction.Add, FacetA.a1.selector);
         // Non-empty data is ignored when init == address(0); cut still applies.
         vm.prank(OWNER);
         d.diamondCut(cuts, address(0), hex"deadbeefcafe");
