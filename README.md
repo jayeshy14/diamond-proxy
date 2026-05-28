@@ -32,6 +32,27 @@ interfaces/
 - **Revert bubbling**: Failed `init` delegatecalls propagate the original revert reason
 - **Block scanner compatible**: Loupe functions and `address(this)` facet registration allow tools like Louper.dev to introspect the Diamond
 
+## Installation
+
+```shell
+forge install jayeshy14/diamond-proxy
+```
+
+Add the remapping to `remappings.txt`:
+
+```
+diamond-proxy/=lib/diamond-proxy/src/
+```
+
+Then import:
+
+```solidity
+import {Diamond} from "diamond-proxy/Diamond.sol";
+import {IDiamondCut} from "diamond-proxy/interfaces/IDiamondCut.sol";
+import {IDiamondLoupe} from "diamond-proxy/interfaces/IDiamondLoupe.sol";
+import {IOwnership} from "diamond-proxy/interfaces/IOwnership.sol";
+```
+
 ## Usage
 
 ### Build
