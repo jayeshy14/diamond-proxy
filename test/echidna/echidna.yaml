@@ -1,0 +1,7 @@
+testMode: property
+testLimit: 50000
+seqLen: 50
+shrinkLimit: 5000
+coverage: true
+corpusDir: test/echidna/corpus
+prefix: echidna_
